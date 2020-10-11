@@ -1,11 +1,12 @@
 use std::char;
 
 pub fn doit() {
-    let mut input = String::from("cqjxjnds");
-    println!("Res: {}", calc(&input));
+    let input = String::from("cqjxjnds");
+    println!("Result of day11 p1: {}", calc(&input));
 }
 
 fn calc(input: &String) -> String {
+    let mut input = String::from(input);
     loop {
         let mut c: Vec<u8> = input.chars().map(|x| x as u8).collect();
         for i in (0..8).rev() {
@@ -22,6 +23,7 @@ fn calc(input: &String) -> String {
         if check(&d) {
             return d;
         }
+        input = d;
     }
 }
 
@@ -49,8 +51,15 @@ fn three_letter(input: &String) -> bool {
 
 fn double_letter(input: &String) -> bool {
     let mut res = false;
+    let mut first: Option<char> = None;
     for i in 0..input.len()-1 {
-        
+        let c: Vec<char> = input[i..i+2].chars().collect();
+        if c[0] == c[1] && first.is_none() {
+            first = Some(c[0]);
+        } else if c[0] == c[1] && first.is_some() && first.unwrap() != c[0] {
+            res = true;
+            break;
+        }
     }
     res
 }
