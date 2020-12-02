@@ -3,7 +3,7 @@ use std::fs::File;
 use std::collections::HashMap;
 
 pub fn doit() {
-    let reader = BufReader::new(File::open("data/input_day07.txt").unwrap());
+    let reader = BufReader::new(File::open("data/input_day13.txt").unwrap());
     let input: Vec<String> = reader.lines().map(|l| l.unwrap()).collect();
     let res = calc(&input);
     println!("Result of day13 p1: {}", res);
@@ -20,14 +20,43 @@ fn calc(input: &Vec<String>) -> i32 {
         if data[2] == "lose" {
             val = val * -1;
         }
-        mm.get_mut(data[0]).unwrap().insert(data[10], val);
-        println!("all components {} {} {} {} {}", data[0], data[2], data[3], data[10], val)
+        let len = data[10].len() - 1;
+        mm.get_mut(data[0]).unwrap().insert(&data[10][..len], val);
     }
-    12
+    let mut all:Vec<Vec<String>> = Vec::new();
+    let keys:Vec<String> = mm.keys().map(|&x| String::from(x)).collect();
+    let path:Vec<String> = Vec::new();
+    comb(&keys, &path, &mut all);
+    let mut res:i32 = 0;
+    for c in all {
+        let mut hap:i32 = 0;
+        for (i, p) in c.iter().enumerate() {
+            let n = (i+c.len()-1) % c.len();
+            let m = (i+1) % c.len();
+            let p = mm.get(p.as_str()).unwrap();
+            hap += p.get(c[n].as_str()).unwrap();
+            hap += p.get(c[m].as_str()).unwrap();
+        }
+        if hap > res {
+            res = hap;
+        }
+    }
+    res
 }
 
-
-
+fn comb(keys:&Vec<String>, path:&Vec<String>, all:&mut Vec<Vec<String>>) {
+    if keys.len() == 0 {
+        all.push(path.clone());
+    } else {
+        for (i, key) in keys.iter().enumerate() {
+            let mut mypath = path.clone();
+            mypath.push(key.clone());
+            let mut mykeys = keys.clone();
+            mykeys.remove(i);
+            comb(&mykeys, &mypath, all);
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {
