@@ -82,6 +82,6 @@ mod tests {
             String::from("David would lose 7 happiness units by sitting next to Bob."),
             String::from("David would gain 41 happiness units by sitting next to Carol.")
         ];
-        assert_eq!(super::calc(&data), 330);
+        assert_eq!(super::calc(&data), 286);
     }
 }
