@@ -21,7 +21,6 @@ fn calc(input: &Vec<String>, seconds: u32) -> u32 {
             r = fly;
         }
         mkm += r * speed;
-        println!("{} fly {} km", data[0], mkm);
         if mkm > km {
             km = mkm;
         }

@@ -1,7 +1,8 @@
 use std::io::{BufRead, BufReader};
 use std::fs::File;
+use std::collections::HashMap;
 
-struct reindeer {
+struct Reindeer {
     name:String,
     speed:u32,
     fly:u32,
@@ -16,24 +17,41 @@ pub fn doit() {
 }
 
 fn calc(input: &Vec<String>, seconds: u32) -> u32 {
-    let mut km:u32 = 0;
+    let mut rv:Vec<Reindeer> = Vec::new();
     for line in input {
         let data:Vec<&str> = line.split(" ").collect();
         let speed = data[3].parse::<u32>().unwrap();
         let fly = data[6].parse::<u32>().unwrap();
         let rest = data[13].parse::<u32>().unwrap();
-        let mut mkm = seconds / (fly + rest) * (fly * speed);
-        let mut r = seconds % (fly + rest);
-        if r > fly {
-            r = fly;
+        rv.push(Reindeer { name:String::from(data[0]), speed:speed, fly:fly, rest:rest });
+    }
+    let mut ret:HashMap<&str, u32> = HashMap::new();
+    for r in &rv {
+        ret.insert(&r.name, 0);
+    }
+    for s in 1..seconds+1 {
+        let mut res:HashMap<&str, u32> = HashMap::new();
+        for r in &rv {
+            res.insert(&r.name, scalc(s, r.speed, r.fly, r.rest));
         }
-        mkm += r * speed;
-        println!("{} fly {} km", data[0], mkm);
-        if mkm > km {
-            km = mkm;
+        let max = res.values().max().unwrap();
+        for (k,v) in res.iter() {
+            if v == max {
+                *ret.get_mut(k).unwrap() += 1;
+            }
         }
     }
-    km
+    *ret.values().max().unwrap()
+}
+
+fn scalc(second:u32, speed:u32, fly:u32, rest:u32) -> u32 {
+    let mut mkm = second / (fly + rest) * (fly * speed);
+    let mut r = second % (fly + rest);
+    if r > fly {
+        r = fly;
+    }
+    mkm += r * speed;
+    mkm
 }
 
 #[cfg(test)]
