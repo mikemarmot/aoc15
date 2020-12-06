@@ -8,18 +8,21 @@ pub fn doit() {
     println!("Result of day17 p2: {}", res);
 }
 
-fn calc(input: &Vec<u8>, eggnog:u8) -> u16 {
-    let mut res:u16 = 0;
-    scalc(&input[..], eggnog, &mut res);
-    res
+fn calc(input: &Vec<u8>, eggnog:u8) -> usize {
+    let mut res:Vec<Vec<u8>> = Vec::new();
+    scalc(&input[..], eggnog, &Vec::new(), &mut res);
+    let no = res.iter().map(|x| x.len()).min().unwrap();
+    no
 }
 
-fn scalc(input: &[u8], eggnog:u8, res:&mut u16) {
+fn scalc(input: &[u8], eggnog:u8, path:&Vec<u8>, res:&mut Vec<Vec<u8>>) {
     for (i,c) in input.iter().enumerate() {
         if *c == eggnog {
-            *res += 1;
+            res.push(path.to_vec());
         } else if eggnog > *c {
-            scalc(&input[i+1..], eggnog - c, res)
+            let mut mypath = path.clone();
+            mypath.push(*c);
+            scalc(&input[i+1..], eggnog - c, &mypath, res);
         }
     }
 }
@@ -29,6 +32,6 @@ mod tests {
     #[test]
     fn test_calc() {
         let data = vec![20,15,10,5,5];
-        assert_eq!(super::calc(&data, 25), 4);
+        assert_eq!(super::calc(&data, 25), 3);
     }
 }
