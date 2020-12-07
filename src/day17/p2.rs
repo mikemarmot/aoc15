@@ -12,16 +12,17 @@ fn calc(input: &Vec<u8>, eggnog:u8) -> usize {
     let mut res:Vec<Vec<u8>> = Vec::new();
     scalc(&input[..], eggnog, &Vec::new(), &mut res);
     let no = res.iter().map(|x| x.len()).min().unwrap();
-    no
+    let abc = res.iter().filter(|&x| x.len() == no).collect::<Vec<_>>();
+    abc.len()
 }
 
 fn scalc(input: &[u8], eggnog:u8, path:&Vec<u8>, res:&mut Vec<Vec<u8>>) {
     for (i,c) in input.iter().enumerate() {
+        let mut mypath = path.clone();
+        mypath.push(*c);
         if *c == eggnog {
-            res.push(path.to_vec());
+            res.push(mypath.to_vec());
         } else if eggnog > *c {
-            let mut mypath = path.clone();
-            mypath.push(*c);
             scalc(&input[i+1..], eggnog - c, &mypath, res);
         }
     }
