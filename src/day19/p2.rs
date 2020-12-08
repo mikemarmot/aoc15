@@ -1,6 +1,6 @@
 use std::io::{BufRead, BufReader};
 use std::fs::File;
-use std::collections::{HashMap,HashSet};
+use std::collections::HashMap;
 
 pub fn doit() {
     let reader = BufReader::new(File::open("data/input_day19.txt").unwrap());
@@ -28,36 +28,31 @@ fn prep_data(input: &Vec<String>) -> (HashMap<&str, Vec<&str>>, &str) {
 }
 
 fn scalc(input: &HashMap<&str, Vec<&str>>, d:&str) -> usize {
-    // println!("XXX1 {:#?}", d);
-    let mut res:Vec<String> = Vec::new();
-    res.push(String::from("e"));
-    let mut step:usize = 0;
-    while !res.contains(&String::from(d)) {
-        println!("XXX2 {:#?}", res.len());
-        let mut r:Vec<String> = Vec::new();
-        for e in res {
-            let re = calc(&input, &e);
-            r.extend(re);
-        }
-        r.sort();
-        r.dedup();
-        res = r;
-        step += 1;
-    }
-    step
+    let mut res:Vec<usize> = Vec::new();
+    let mut cnt_f:u64 = 0;
+    let mut cnt_t:u64 = 0;
+    calc(input, d, "e", 1, &mut res, &mut cnt_f, &mut cnt_t);
+    *res.iter().min().unwrap()
 }
 
-fn calc(input: &HashMap<&str, Vec<&str>>, d:&str) -> Vec<String> {
-    let mut res:Vec<String> = Vec::new();
+fn calc(input: &HashMap<&str, Vec<&str>>, s:&str, d:&str, c:usize, res:&mut Vec<usize>, cnt_f:&mut u64, cnt_t:&mut u64) {
     for i in 0..d.len() {
         for (ik, iv) in input.iter().filter(|(&k,_)| i+k.len() <= d.len() && &d[i..i+k.len()] == k) {
             for v in iv {
-                res.push(String::from(format!("{}{}{}", &d[..i], v, &d[i+ik.len()..])));
+                if (1..=475).contains(&c) { println!("{}:{}", c, ik)}
+                let t = format!("{}{}{}", &d[..i], v, &d[i+ik.len()..]);
+                if t == s {
+                    res.push(c);
+                    *cnt_t += 1;
+                } else if t.len() >= s.len() {
+                    *cnt_f += 1;
+                    //if *cnt_f % 1000 == 0 { print!("{:10}//{:10}\r", cnt_f, cnt_t); }
+                } else {
+                    calc(input, s, &t, c+1, res, cnt_f, cnt_t);
+                }
             }
         }
     }
-    // println!("XXX3 {:#?}", res);
-    res
 }
 
 #[cfg(test)]
