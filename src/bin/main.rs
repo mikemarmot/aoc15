@@ -1,4 +1,4 @@
-use aoc15::day19::{p1,p2};
+use aoc15::day20::{p1,p2};
 
 fn main() {
     p1::doit();
