@@ -1,6 +1,7 @@
 use std::io::{BufRead, BufReader};
 use std::fs::File;
 use std::collections::HashMap;
+use std::cmp::Reverse;
 
 pub fn doit() {
     let reader = BufReader::new(File::open("data/input_day19.txt").unwrap());
@@ -29,22 +30,29 @@ fn prep_data(input: &Vec<String>) -> (HashMap<&str, &str>, &str) {
 
 fn scalc(input: &HashMap<&str, &str>, d:&str) -> usize {
     let mut res:Vec<usize> = Vec::new();
-    let mut size:usize = d.len();
-    calc(input, "e", d, 1, &mut res, &mut size);
+    let mut inkeys:Vec<&str> = input.keys().map(|&x| x).collect();
+    inkeys.sort_by_key(|x| Reverse(x.len()));
+    //println!("{:?}", inkeys);
+    calc(&inkeys, input, d, 0, &mut res);
+    //println!("{:?}",res);
     *res.iter().min().unwrap()
 }
 
-fn calc(input: &HashMap<&str, &str>, s:&str, d:&str, c:usize, res:&mut Vec<usize>, size:&mut usize) {
-    for i in 0..d.len() {
-        for (ik, iv) in input.iter().filter(|(&k,_)| i+k.len() <= d.len() && &d[i..i+k.len()] == k) {
-            println!("c:{} i:{} k:{} -> {}", c, i, ik, iv);
-            let t = format!("{}{}{}", &d[..i], iv, &d[i+ik.len()..]);
-            if t.len() < *size { *size = t.len(); print!("{:5}\r", size)}
-            if t == s {
-                res.push(c);
-                //print!("{} ",c);
-            } else {
-                calc(input, s, &t, c+1, res, size);
+fn calc(inkeys:&Vec<&str>, input: &HashMap<&str, &str>, d:&str, size:usize, res:&mut Vec<usize>) {
+    //println!("{}: {} {:?}", size, d, res);
+    //print!("{:10}\r", size);
+    if d.contains("e") {
+        if d.len() == 1 {
+            res.push(size);
+            //println!("success {}", size);
+        }
+    } else if res.len() >= 100000 {
+        // nothing
+    } else {
+        for k in inkeys {
+            if d.find(k).is_some() {
+                let md = d.replacen(k, input.get(k).unwrap(), 1);
+                calc(inkeys, input, &md, size+1, res);
             }
         }
     }
